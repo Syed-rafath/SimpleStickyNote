@@ -1,9 +1,11 @@
 import sys
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QPushButton,
+    QSystemTrayIcon,
     QTextEdit, 
     QVBoxLayout, 
     QWidget
@@ -13,6 +15,7 @@ from PySide6.QtWidgets import (
 app = QApplication(sys.argv)
 
 
+active_notewindows = {}
 
 class NoteWindow(QWidget):
     def __init__(self):
@@ -43,6 +46,7 @@ class NoteWindow(QWidget):
         layout.addWidget(self.text)
         self.setLayout(layout)
 
+        active_notewindows[id(self)] = self
     #mousePressEven , mouseMoveEvent, globalPosition() are predifined we are overriding     
     def mousePressEvent(self, e):
         self.previous_pos = e.globalPosition()
@@ -52,7 +56,28 @@ class NoteWindow(QWidget):
         self.move(self.x() + delta.x(), self.y() + delta.y())
         self.previous_pos = e.globalPosition()        
 
+def create_notewindow():
+# note = NoteWindow()
+# note.show() #draws the window
+    note = NoteWindow()
+    note.show()
 
-note = NoteWindow()
-note.show() #draws the window
+create_notewindow()
+
+#create system tray icon 
+icon = QIcon("sticky-note.png")
+
+#create the tray 
+tray = QSystemTrayIcon()
+tray.setIcon(icon)
+tray.setVisible(True)
+
+def handle_tray_click(reason):
+    if(
+        QSystemTrayIcon.ActivationReason(reason)
+        == QSystemTrayIcon.ActivationReason.Trigger
+    ):
+        create_notewindow()
+
+tray.activated.connect(handle_tray_click)
 app.exec()  #runs the app (process in taskmanager)
