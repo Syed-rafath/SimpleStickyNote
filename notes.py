@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 app = QApplication(sys.argv)
 
 
+
 class NoteWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -37,10 +38,19 @@ class NoteWindow(QWidget):
         buttons.addStretch() # Add Stretch one leflt to push button right
         buttons.addWidget(self.close_btn)
         layout.addLayout(buttons)
-        
+
         self.text = QTextEdit()
         layout.addWidget(self.text)
         self.setLayout(layout)
+
+    #mousePressEven , mouseMoveEvent, globalPosition() are predifined we are overriding     
+    def mousePressEvent(self, e):
+        self.previous_pos = e.globalPosition()
+
+    def mouseMoveEvent(self, e):
+        delta = e.globalPosition() - self.previous_pos
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.previous_pos = e.globalPosition()        
 
 
 note = NoteWindow()
